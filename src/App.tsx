@@ -149,7 +149,7 @@ function App() {
           <div className="flex-1 flex flex-col">
             <h3 className="text-center text-sm font-bold text-[#1a1a1a] mb-2 uppercase tracking-widest">Beispielrechnung für den Vermögensaufbau</h3>
             <p className="text-center text-[10px] leading-relaxed text-gray-400 mb-6 max-w-xl mx-auto">
-              Die Berechnung zeigt das angesparte Kapital bis zum 18. Lebensjahr. Es wird von einer jährlichen Wertentwicklung von 6 % netto ausgegangen. Es liegt kein konkretes Finanzprodukt zu Grunde.
+              Die Berechnung zeigt das angesparte Kapital bis zum 18. Lebensjahr. Es wird von einer jährlichen Wertentwicklung von 6% netto ausgegangen. Es liegt kein konkretes Finanzprodukt zu Grunde.
             </p>
 
             <div className="flex-1 w-full min-h-0">
