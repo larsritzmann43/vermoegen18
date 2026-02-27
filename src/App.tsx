@@ -6,7 +6,7 @@ function App() {
   const [targetAmount, setTargetAmount] = useState(10000);
 
   // Constants
-  const netRateAccumulation = 1.075; // 7.5% p.a.
+  const netRateAccumulation = 1.06; // 6% p.a.
 
   // Derived Calculation
   const { monthlyContribution, data, milestones } = useMemo(() => {
@@ -146,10 +146,13 @@ function App() {
 
         {/* Right Column: Chart & Results */}
         <div className="lg:col-span-8 bg-white p-8 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-gray-100 flex flex-col h-[670px]">
-          <div>
-            <h3 className="text-center text-sm font-bold text-[#1a1a1a] mb-8 uppercase tracking-widest">Vermögen aufbauen</h3>
+          <div className="flex-1 flex flex-col">
+            <h3 className="text-center text-sm font-bold text-[#1a1a1a] mb-2 uppercase tracking-widest">Beispielrechnung für den Vermögensaufbau</h3>
+            <p className="text-center text-[10px] leading-relaxed text-gray-400 mb-6 max-w-xl mx-auto">
+              Die Berechnung zeigt das angesparte Kapital bis zum 18. Lebensjahr. Es wird von einer jährlichen Wertentwicklung von 6 % netto ausgegangen. Es liegt kein konkretes Finanzprodukt zu Grunde.
+            </p>
 
-            <div className="h-[362px] w-full">
+            <div className="flex-1 w-full min-h-0">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
                   data={data}
@@ -202,8 +205,8 @@ function App() {
           </div>
 
           {/* Milestones */}
-          <div className="mt-12">
-            <h4 className="text-center text-gray-500 text-xs uppercase tracking-widest mb-4 font-semibold">Depotwert im Alter von ...</h4>
+          <div className="mt-8">
+            <h4 className="text-center text-gray-500 text-xs uppercase tracking-widest mb-4 font-semibold">Vermögenswert im Alter von ...</h4>
             <div className="grid grid-cols-4 gap-4">
               {[
                 { age: 5, val: milestones.at5 },
@@ -221,9 +224,6 @@ function App() {
                 </div>
               ))}
             </div>
-            <p className="text-center text-[10px] text-gray-400 mt-6">
-              Die Berechnung zeigt das angesparte Kapital bis zum 18. Lebensjahr.
-            </p>
           </div>
         </div>
       </div>
