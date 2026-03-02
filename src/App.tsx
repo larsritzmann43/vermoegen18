@@ -4,25 +4,30 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 function App() {
   const [childAge, setChildAge] = useState(0);
   const [targetAmount, setTargetAmount] = useState(10000);
-
-  // Constants
-  const netRateAccumulation = 1.06; // 6% p.a.
+  const [returnRate, setReturnRate] = useState(0.06);
+  const [considerInflation, setConsiderInflation] = useState(false);
 
   // Derived Calculation
   const { monthlyContribution, data, milestones } = useMemo(() => {
+    // Constants
+    const netRateAccumulation = 1 + returnRate;
+    const inflationRate = 0.02;
+
     // Target is targetAmount at age 18
     const targetAge = 18;
+    const yearsAccumulation = targetAge - childAge;
+
+    const futureTarget = considerInflation ? targetAmount * Math.pow(1 + inflationRate, yearsAccumulation) : targetAmount;
 
     // Calculate Required Monthly Contribution
     const i1 = Math.pow(netRateAccumulation, 1 / 12) - 1;
-    const yearsAccumulation = targetAge - childAge;
     const monthsAccumulation = yearsAccumulation * 12;
 
     let calcedContribution = 0;
     if (monthsAccumulation > 0) {
       // FV factor for annuity due (start of month)
       const fvFactor = ((Math.pow(1 + i1, monthsAccumulation) - 1) / i1) * (1 + i1);
-      calcedContribution = targetAmount / fvFactor;
+      calcedContribution = futureTarget / fvFactor;
     }
 
     // Generate Data Points
@@ -68,7 +73,7 @@ function App() {
       data: dataPoints,
       milestones: milestonesVals
     };
-  }, [childAge, targetAmount]);
+  }, [childAge, targetAmount, returnRate, considerInflation]);
 
   const formatCurrency = (val: number) => {
     return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(val);
@@ -77,7 +82,7 @@ function App() {
   return (
     <div className="min-h-screen bg-white text-[#222] font-sans p-8 flex flex-col items-center">
       <header className="text-center mb-12">
-        <h1 className="text-4xl md:text-5xl font-bold text-[#8bbd2a] mb-6">Sparen für die Zukunft</h1>
+        <h1 className="text-4xl md:text-5xl font-bold text-[#8bbd2a] mb-6">Mittelfristiges Sparen bis 18</h1>
         <div className="flex flex-col md:flex-row justify-center items-center gap-2 md:gap-8 text-lg font-medium text-gray-700">
           <p>
             Früh anfangen heißt: <span className="font-['Caveat'] text-3xl font-bold">Träume möglich machen.</span>
@@ -92,7 +97,7 @@ function App() {
           {/* Target Amount Slider */}
           <div className="bg-white p-8 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-gray-100">
             <div className="flex justify-between items-center mb-6">
-              <label className="text-sm font-bold tracking-wider text-[#1a1a1a]">WUNSCHBETRAG</label>
+              <label className="text-sm font-bold tracking-wider text-[#1a1a1a]">GEWÜNSCHTER BETRAG</label>
             </div>
             <div className="text-center mb-6">
               <span className="text-3xl font-bold text-[#8bbd2a]">{targetAmount.toLocaleString('de-DE')} €</span>
@@ -109,14 +114,67 @@ function App() {
             <div className="flex justify-between mt-2 text-xs text-gray-300">
               <span>1.000 €</span><span>50.000 €</span>
             </div>
+
+            <div className="mt-8 space-y-3">
+              <label className="flex items-center space-x-3 cursor-pointer group">
+                <div className="relative flex items-center justify-center w-5 h-5">
+                  <input
+                    type="checkbox"
+                    className="peer appearance-none w-5 h-5 border border-gray-300 rounded-[4px] checked:bg-[#007aff] checked:border-[#007aff] transition-colors"
+                    checked={considerInflation}
+                    onChange={(e) => setConsiderInflation(e.target.checked)}
+                  />
+                  {considerInflation && (
+                    <svg className="absolute w-3.5 h-3.5 text-white pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  )}
+                </div>
+                <span className="text-[13px] font-medium text-[#4a4a4a]">Inflation berücksichtigen (2% p.a.)</span>
+              </label>
+
+              <label className="flex items-center space-x-3 cursor-pointer group">
+                <div className="relative flex items-center justify-center w-5 h-5">
+                  <input
+                    type="checkbox"
+                    className="peer appearance-none w-5 h-5 border border-gray-300 rounded-[4px] checked:bg-[#007aff] checked:border-[#007aff] transition-colors"
+                    checked={returnRate === 0.04}
+                    onChange={() => setReturnRate(0.04)}
+                  />
+                  {returnRate === 0.04 && (
+                    <svg className="absolute w-3.5 h-3.5 text-white pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  )}
+                </div>
+                <span className="text-[13px] font-medium text-[#4a4a4a]">Renditeannahme 4% p.a.</span>
+              </label>
+
+              <label className="flex items-center space-x-3 cursor-pointer group">
+                <div className="relative flex items-center justify-center w-5 h-5">
+                  <input
+                    type="checkbox"
+                    className="peer appearance-none w-5 h-5 border border-gray-300 rounded-[4px] checked:bg-[#007aff] checked:border-[#007aff] transition-colors"
+                    checked={returnRate === 0.06}
+                    onChange={() => setReturnRate(0.06)}
+                  />
+                  {returnRate === 0.06 && (
+                    <svg className="absolute w-3.5 h-3.5 text-white pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  )}
+                </div>
+                <span className="text-[13px] font-medium text-[#4a4a4a]">Renditeannahme 6% p.a.</span>
+              </label>
+            </div>
           </div>
 
           {/* Age Slider */}
-          <div className="bg-white p-8 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-gray-100">
-            <div className="flex justify-between items-center mb-6">
-              <label className="text-sm font-bold tracking-wider text-[#1a1a1a]">SPAREN AB ALTER</label>
+          <div className="bg-white px-8 py-6 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-gray-100">
+            <div className="flex justify-between items-center mb-4">
+              <label className="text-sm font-medium tracking-wider text-[#1a1a1a]">SPAREN AB ALTER</label>
             </div>
-            <div className="text-center mb-6">
+            <div className="text-center mb-4">
               <span className="text-3xl font-bold text-[#8bbd2a]">{childAge} J.</span>
             </div>
             <input
@@ -133,11 +191,11 @@ function App() {
           </div>
 
           {/* Contribution Display */}
-          <div className="bg-white p-8 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-gray-100">
-            <div className="flex justify-between items-center mb-6">
-              <label className="text-sm font-bold tracking-wider text-[#1a1a1a]">BENÖTIGTER SPARBEITRAG</label>
+          <div className="bg-white px-8 py-6 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-gray-100 shrink-0">
+            <div className="flex justify-between items-center mb-4">
+              <label className="text-sm font-medium tracking-wider text-[#1a1a1a]">BENÖTIGTER SPARBEITRAG</label>
             </div>
-            <div className="text-center mb-6">
+            <div className="text-center mb-2">
               <span className="text-3xl font-bold text-[#8bbd2a]">{Math.round(monthlyContribution).toLocaleString('de-DE')} €</span>
             </div>
           </div>
@@ -145,11 +203,11 @@ function App() {
         </div>
 
         {/* Right Column: Chart & Results */}
-        <div className="lg:col-span-8 bg-white p-8 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-gray-100 flex flex-col h-[670px]">
+        <div className="lg:col-span-8 bg-white p-8 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-gray-100 flex flex-col h-full min-h-[500px]">
           <div className="flex-1 flex flex-col">
             <h3 className="text-center text-sm font-bold text-[#1a1a1a] mb-2 uppercase tracking-widest">Beispielrechnung für den Vermögensaufbau</h3>
-            <p className="text-center text-[10px] leading-relaxed text-gray-400 mb-6 max-w-xl mx-auto">
-              Die Berechnung zeigt das angesparte Kapital bis zum 18. Lebensjahr. Es wird von einer jährlichen Wertentwicklung von 6% netto ausgegangen. Es liegt kein konkretes Finanzprodukt zu Grunde.
+            <p className="text-center text-[10px] leading-relaxed text-gray-400 mb-6 max-w-3xl mx-auto">
+              Die Berechnung zeigt das mögliche angesparte Kapital bis zum 18. Lebensjahr. Es wird von einer jährlichen Wertentwicklung von <strong>{Math.round(returnRate * 100)}%</strong> ausgegangen. Es handelt sich um eine mathematische Berechnung. Es liegt kein konkretes Finanzprodukt zu Grunde.
             </p>
 
             <div className="flex-1 w-full min-h-0">
@@ -187,7 +245,7 @@ function App() {
                     tick={{ fill: '#666', fontSize: 12 }}
                   />
                   <Tooltip
-                    formatter={(value: any) => formatCurrency(value)}
+                    formatter={(value) => formatCurrency(value as number)}
                     labelFormatter={(label) => `Alter: ${label} Jahre`}
                     contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
                   />
